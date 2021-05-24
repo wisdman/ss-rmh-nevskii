@@ -1,0 +1,22 @@
+{
+  "name": "ss-rmh-nevskii",
+  "version": "0.1.0",
+  "description": "SmartScreen for exposition Alexander Nevsky",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Lit3D/ss-rmh-nevskii.git"
+  },
+  "homepage": "https://github.com/Lit3D/ss-rmh-nevskii",
+  "bugs": {
+    "url": "https://github.com/Lit3D/ss-rmh-nevskii/issues"
+  },
+  "author": "Lit3D <git@lit3d.io> (https://github.com/Lit3D)",
+  "license": "UNLICENSED",
+  "private": true,
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "clean": "rm -rf ./build/*",
+    "start": "node src/server.js"
+  }
+}
