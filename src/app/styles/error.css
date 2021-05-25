@@ -5,4 +5,5 @@
 
   font-size: 64px;
   line-height: 1;
+  text-shadow: var(--ss-text-shadow);
 }
