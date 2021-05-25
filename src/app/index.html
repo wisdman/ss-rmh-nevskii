@@ -15,6 +15,22 @@
   </style>
 </head>
 <body>
-  <ss-slider></ss-slider>
+  <ss-loader></ss-loader>
+  <script type="module">
+    import { SliderComponent } from "/components/index.mjs"
+    const contentConfig = `/content${window.location.pathname}.json`
+
+    try {
+      const response = await fetch(contentConfig)
+      const contentData = await response.json()
+      const sliderNode = new SliderComponent(contentData)
+      requestAnimationFrame(() => {
+        document.querySelector("ss-loader").remove()
+        document.body.appendChild(sliderNode)
+      })
+    } catch (error) {
+      document.body.innerHTML = `<h1 class="error">Incorrect SS data by path: ${contentConfig}</h1>`
+    }   
+  </script>
 </body>
 </html>

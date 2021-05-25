@@ -36,6 +36,7 @@ body {
   line-height: 1;
 
   user-select: none;
+  pointer-events: none;
 }
 
 body > * { grid-area: 1 / 1 / -1 / -1; }

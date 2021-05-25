@@ -1,6 +1,8 @@
 :host {
   display: block;
   overflow: clip;
+
+  pointer-events: auto;
 }
 
 .wrapper {
@@ -10,11 +12,13 @@
   display: flex;
   flex-flow: row nowrap;
   align-items: center;
-  column-gap: 5%;
+  column-gap: var(--ss-slide-gap);
   
   overflow: clip;
   overflow-x: overlay;
   scroll-snap-type: x mandatory;
+
+  position: relative;
 }
 
 .wrapper::-webkit-scrollbar {
@@ -26,22 +30,35 @@
 .wrapper::before, .wrapper::after {
   content: "";
   display: block;
-  flex: 0 0 10%;
+  flex: 0 0 calc((100% - var(--ss-slide-width) - var(--ss-slide-gap) * 2) / 2);
   height: 1px;
 }
 
 .slide {
-  display: block;
-  flex: 0 0 70%;
+  position: relative;
+
+  display: grid;
+  justify-content: stretch;
+  align-items: stretch;
+
+  flex: 0 0 var(--ss-slide-width);
   aspect-ratio: 16 / 9;
 
   margin: 0;
   padding: 0;
 
+  scroll-snap-align: center;
+  --intersection-ratio: 1;
+}
+
+.image {
   background-color: red;
   opacity: .5;
 
-  scroll-snap-align: center;
+  pointer-events: none;
+
+  will-change: transform;
+  transform: scale(calc(var(--ss-slide-scale-factor) + (1 - var(--ss-slide-scale-factor)) * var(--intersection-ratio)));
 }
 
 .slide-caption {

@@ -39,6 +39,18 @@ export class AbstractComponent extends HTMLElement {
 
   #root = this.attachShadow({ mode: "open" })
 
+  $ = (selector, { root = true, host = true } = {}) => {
+    return root && this.#root.querySelector(selector) ||
+           host && this.querySelector(selector)
+  }
+
+  $$ = (selector, { root = true, host = true } = {}) => {
+    return [
+      ...(root ? this.#root.querySelectorAll(selector) : []),
+      ...(host ? this.querySelectorAll(selector) : []),
+    ]
+  }
+
   constructor() {
     super()
     this.#root.innerHTML = Object.getPrototypeOf(this).constructor[HTML_SYMBOL]

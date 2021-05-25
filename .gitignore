@@ -26,6 +26,10 @@ node_modules/
 **/build/*
 !**/build/.gitkeep
 
+### RAW Content ###
+/raw-content/*
+!/raw-content/psd_to_webp.sh
+
 ### Runtime environment ###
 *.env
 *.lock
