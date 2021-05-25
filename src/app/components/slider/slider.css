@@ -17,6 +17,16 @@
   margin: 0;
   padding: 0;
 
-  font-size: 45px;
   line-height: 1;
+  color: #473D33;
+}
+
+.header {
+  font-size: 96px;
+  text-shadow: 4px 4px 10px rgba(71,61,51, 0.5);
+}
+
+.footer {
+  font-size: 45px;
+  text-shadow: 4px 4px 10px rgba(71,61,51, 0.5);
 }
