@@ -28,3 +28,9 @@
 .footer {
   font-size: 45px;
 }
+
+.current-slide, .slides-count {
+  display: inline-block;
+  text-align: center;
+  min-width: 25px;
+}

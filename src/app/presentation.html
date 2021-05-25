@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Presentation</title>
+  <script type="module" src="/components/index.mjs"></script>
   <link rel="stylesheet" type="text/css" href="/styles/index.css">
   <style type="text/css">
     :root {
@@ -13,5 +14,19 @@
   </style>
 </head>
 <body>
+  <script type="module">
+    import { PlayerComponent } from "/components/index.mjs"
+    import { Presentation } from "/components/player/presentation.mjs"
+
+    try {
+      const presentation = await new Presentation({ master: false })
+      const playerNode = new PlayerComponent()
+      document.body.appendChild(playerNode)
+      presentation.addEventListener("message", ({detail:{url}}) => url ? playerNode.play(url) : playerNode.dummy())
+    } catch (error) {
+      document.body.innerHTML = `<h1 class="error">Presentation mode error</h1>`
+      console.error(error)
+    }   
+  </script>
 </body>
 </html>

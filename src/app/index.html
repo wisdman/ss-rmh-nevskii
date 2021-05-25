@@ -4,7 +4,6 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>SmartScreen</title>
-  <script type="module" src="/components/index.mjs" defer=""></script>
   <link rel="stylesheet" type="text/css" href="/styles/index.css">
   <style type="text/css">
     :root {
@@ -18,18 +17,20 @@
   <ss-loader></ss-loader>
   <script type="module">
     import { SliderComponent } from "/components/index.mjs"
+    import { Presentation } from "/components/player/presentation.mjs"
     const contentConfig = `/content${window.location.pathname}.json`
 
     try {
       const response = await fetch(contentConfig)
       const contentData = await response.json()
-      const sliderNode = new SliderComponent(contentData)
+      const sliderNode = new SliderComponent(contentData, await new Presentation({ master: true }))
       requestAnimationFrame(() => {
         document.querySelector("ss-loader").remove()
         document.body.appendChild(sliderNode)
       })
     } catch (error) {
       document.body.innerHTML = `<h1 class="error">Incorrect SS data by path: ${contentConfig}</h1>`
+      console.error(error)
     }   
   </script>
 </body>
