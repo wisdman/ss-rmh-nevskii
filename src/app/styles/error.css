@@ -1,9 +1,12 @@
 .error {
+  box-sizing: border-box;
   display: flex;
   justify-content: center;
   align-items: center;
 
-  font-size: 64px;
-  line-height: 1;
+  padding: 32px;
+
+  font-size: 42px;
+  line-height: 1.25;
   text-shadow: var(--ss-text-shadow);
 }

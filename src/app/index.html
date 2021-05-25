@@ -18,20 +18,38 @@
   <script type="module">
     import { SliderComponent } from "/components/index.mjs"
     import { Presentation } from "/components/player/presentation.mjs"
-    const contentConfig = `/content${window.location.pathname}.json`
+    
+    async function getData(url = `/content${window.location.pathname}.json`) {
+      try {
+        const response = await fetch(url)
+        if (response.status !== 200) throw new Error(`${response.status}: ${response.statusText}`)
+        return response
+      } catch (error) {
+        document.body.innerHTML = `<h1 class="error">Incorrect SS data by path "${window.location.origin}${url}"!<br>The correct application url should look like "${window.location.origin}/ss-1",<br>where "ss-1" is the name of the configuration file "ss-1.json" without extension.</h1>`
+        console.error(error)
+      }
+      return undefined
+    }
 
-    try {
-      const response = await fetch(contentConfig)
-      const contentData = await response.json()
+    async function parseData(response) {
+      if (!response) return undefined
+      try {
+        return await response.json()
+      } catch (error) {
+        document.body.innerHTML = `<h1 class="error">Incorrect SS data by path "${response.url}"!<br>${error.message}</h1>`
+        console.error(error)
+      }
+      return undefined
+    }
+
+    const contentData = await parseData(await getData())
+    if (contentData) {
       const sliderNode = new SliderComponent(contentData, await new Presentation({ master: true }))
       requestAnimationFrame(() => {
         document.querySelector("ss-loader").remove()
         document.body.appendChild(sliderNode)
       })
-    } catch (error) {
-      document.body.innerHTML = `<h1 class="error">Incorrect SS data by path: ${contentConfig}</h1>`
-      console.error(error)
-    }   
+    }
   </script>
 </body>
 </html>
