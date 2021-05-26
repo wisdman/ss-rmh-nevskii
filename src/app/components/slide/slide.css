@@ -23,7 +23,7 @@
 
   pointer-events: none;
 
-  will-change: transform;
+  will-change: transform, filter;
   transform: scale(calc(var(--ss-slide-scale-factor) + (1 - var(--ss-slide-scale-factor)) * var(--intersection-ratio)));
   filter: grayscale(calc(1 - var(--intersection-ratio)));
 }
