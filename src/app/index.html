@@ -49,6 +49,13 @@
         document.querySelector("ss-loader").remove()
         document.body.appendChild(sliderNode)
       })
+
+      let timeout
+      window.addEventListener(
+        "pointerdown",
+        () => timeout = timeout && clearTimeout(timeout) || setTimeout(sliderNode.reset, 5 * 60 * 1000), // 5m
+        { passive: true }
+      )
     }
   </script>
 </body>

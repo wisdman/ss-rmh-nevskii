@@ -47,4 +47,6 @@ export class SliderComponent extends AbstractComponent {
     this.$("ss-carousel").removeEventListener("active", this.#onSlideActive)
     this.$("ss-carousel").removeEventListener("select", this.#onSelectSlide)
   }
+
+  reset = () => this.$("ss-carousel").reset({ behavior: "smooth" })
 }

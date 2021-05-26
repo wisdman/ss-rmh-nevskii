@@ -5,7 +5,7 @@ export class Presentation {
 
   #connections = new Set()
 
-  constructor({master = false} = {}) {
+  constructor({ master = false } = {}) {
     if (master) return this.#initMaster()
     return this.#initSlave()
   }

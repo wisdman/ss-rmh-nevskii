@@ -51,8 +51,8 @@ export class CarouselComponent extends AbstractComponent {
     this.$$("ss-slide").forEach(slideNode => this.#intersectionObserver.unobserve(slideNode))
   }
 
-  reset = () => {
-    this.$(".wrapper").scrollTo(0, 0)
+  reset = (options = {}) => {
+    this.$(".wrapper").scrollTo({top: 0, left: 0, ...options})
     this.#onSliderIntersecting(this.firstElementChild)
   }
 }
