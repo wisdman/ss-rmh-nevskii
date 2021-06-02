@@ -38,6 +38,7 @@ export class AbstractComponent extends HTMLElement {
   }
 
   #root = this.attachShadow({ mode: "open" })
+  get root() { return this.#root }
 
   $ = (selector, { root = true, host = true } = {}) => {
     return root && this.#root.querySelector(selector) ||

@@ -1,19 +1,19 @@
 
 const PRESENTATION_URL = `${window.location.origin}/presentation.html`
 
-export class Presentation {
+
+export class Presentation extends EventTarget {
 
   #connections = new Set()
 
   constructor({ master = false } = {}) {
+    super()
     if (master) return this.#initMaster()
     return this.#initSlave()
   }
 
   #addConnection = connection => {
-    connection.addEventListener("message", ({data}) => {
-      console.log(`Message: ${data}`)
-    })
+    connection.addEventListener("message", this.#onMessage)
 
     connection.addEventListener("close", ({reason}) => {
       console.log(`Connection closed: ${reason}`)
@@ -41,9 +41,17 @@ export class Presentation {
 
   #initMaster = async () => {
     const request = new PresentationRequest(PRESENTATION_URL)
-    if (!(await this.#availability(request))) return this
-    const newConnection = await REQUEST.start()
-    this.#connections.add(newConnection)
+    // if (!(await this.#availability(request))) {
+    //   // Open new tab for debug
+    //   const connection = window.open(PRESENTATION_URL, "PRESENTATION")
+    //   this.#connections.add(connection)
+    //   return this
+    // } else {
+      const newConnection = await request.start()
+      this.#connections.add(newConnection)
+    // }
+
+    this.#initListeners()
     return this
   }
 
@@ -52,13 +60,42 @@ export class Presentation {
     if (connectionList instanceof PresentationConnectionList) {
       connectionList.connections.forEach(this.#addConnection)
       connectionList.addEventListener("connectionavailable", ({connection}) => this.#addConnection(connection))
+    } else {
+      this.#connections.add(window)
     }
 
+    this.#initListeners()
     return this
   }
 
-  send = message => {
-    console.log(message)
-    // this.#connections.forEach()
+  #initListeners = () => {
+    this.#connections.forEach(connection => connection.addEventListener("message", this.#onMessage))
+  }
+
+  #onMessage = ({data}) => {
+    try {
+      data = JSON.parse(data)
+    } catch (error) {
+      console.error("Incorrect message: ", error)
+      return
+    } 
+    for (const [message, detail] of Object.entries(data)) {
+      this.dispatchEvent(new CustomEvent(message, { detail }))
+    }
+  }
+
+  send = (messageData = {}) => {
+    const message = JSON.stringify(messageData)
+    this.#connections.forEach(connection => {
+      if (connection instanceof PresentationConnection) {
+        connection.send(message)
+        return
+      }
+
+      if (connection instanceof Window) {
+        connection.postMessage(message, PRESENTATION_URL)
+        return
+      }
+    })
   }
 }
