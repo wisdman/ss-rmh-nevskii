@@ -34,7 +34,7 @@ export class SliderComponent extends AbstractComponent {
   }
 
   #onSlideActive = ({detail:{id}}) => this.#currentSlide = id
-  #onSelectSlide = ({detail:{dataset}}) => this.#presentationMaster?.send(dataset.presentation ?? "")
+  #onSelectSlide = ({detail:{dataset}}) => this.#presentationMaster?.send({play: dataset.presentation ?? "" })
 
   async connectedCallback() {
     const carouselNode = this.$("ss-carousel")
