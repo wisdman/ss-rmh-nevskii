@@ -19,16 +19,30 @@
     import { SliderComponent } from "/components/index.mjs"
     import { Presentation } from "/components/player/presentation.mjs"
     
-    async function getData(url = `/content${window.location.pathname}.json`) {
+    async function getData(url) {
+      const response = await fetch(url)
+      if (response.status !== 200) throw new Error(`${response.status}: ${response.statusText}`)
+      return response
+    }
+
+    async function getContentData(url = `/content/data.json`) {
       try {
-        const response = await fetch(url)
-        if (response.status !== 200) throw new Error(`${response.status}: ${response.statusText}`)
-        return response
+        const data = await getData(url)
+        return data
+      } catch (error) {
+        document.body.innerHTML = `<h1 class="error">Incorrect Content data by path "${window.location.origin}${url}"!</h1>`
+        console.error(error)
+      }
+    }
+
+    async function getSSData(url = `/content${window.location.pathname}.json`) {
+      try {
+        const data = await getData(url)
+        return data
       } catch (error) {
         document.body.innerHTML = `<h1 class="error">Incorrect SS data by path "${window.location.origin}${url}"!<br>The correct application url should look like "${window.location.origin}/ss-1",<br>where "ss-1" is the name of the configuration file "ss-1.json" without extension.</h1>`
         console.error(error)
       }
-      return undefined
     }
 
     async function parseData(response) {
@@ -36,15 +50,24 @@
       try {
         return await response.json()
       } catch (error) {
-        document.body.innerHTML = `<h1 class="error">Incorrect SS data by path "${response.url}"!<br>${error.message}</h1>`
+        document.body.innerHTML = `<h1 class="error">Incorrect JSON by path "${response.url}"!<br>${error.message}</h1>`
         console.error(error)
       }
       return undefined
     }
 
-    const contentData = await parseData(await getData())
-    if (contentData) {
-      const sliderNode = new SliderComponent(contentData, await new Presentation({ master: true }))
+    const contentData = await parseData(await getContentData())
+    const ssData = await parseData(await getSSData())
+    if (contentData && ssData) {
+      ssData.slides = ssData.slides.map(id => {
+        const {pic, video} = contentData[id]
+        return {
+          image: `/content/assets/${pic}.webp`,
+          presentation: `/content/assets/${video}.mp4`,
+        }
+      })
+
+      const sliderNode = new SliderComponent(ssData, await new Presentation({ master: true }))
       requestAnimationFrame(() => {
         document.querySelector("ss-loader").remove()
         document.body.appendChild(sliderNode)
