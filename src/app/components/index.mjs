@@ -1,5 +1,6 @@
 export { AbstractComponent } from "./abstract/index.mjs"
 export * from "./carousel/carousel.mjs"
+export * from "./detector/detector.mjs"
 export * from "./loader/loader.mjs"
 export * from "./mapping/mapping.mjs"
 export * from "./player/player.mjs"

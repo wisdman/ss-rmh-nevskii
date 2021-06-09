@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Presentation</title>
+  <script type="module" src="/components/index.mjs"></script>
+  <link rel="stylesheet" type="text/css" href="/styles/index.css">
+  <style type="text/css">
+    :root {
+      --background-color: var(--presentation-background-color);
+      --color: var(--presentation-color);
+    }
+  </style>
+</head>
+<body>
+  <canvas></canvas>
+  <script type="module">
+    import { DetectorComponent } from "/components/index.mjs"
+    const detectorNode = new DetectorComponent()
+    document.body.appendChild(detectorNode)
+  </script>
+</body>
+</html>

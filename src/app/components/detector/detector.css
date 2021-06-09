@@ -1,0 +1,15 @@
+:host {
+  display: contents;
+}
+
+canvas {
+  display: block;
+  position: absolute;
+  box-sizing: border-box;
+  left: 0;
+  right: 0;
+  width: 640px;
+  height: 480px;
+
+  border: 1px solid red;
+}
