@@ -1,104 +1,69 @@
-// Create the equation system to be solved
-// src and dst - Arrays with square corners coordinates
-//
-// from: Multiple View Geometry in Computer Vision 2ed
-//       Hartley R. and Zisserman A.
-//
-// x' = xH
-// where H is the homography: a 3 by 3 matrix
-// that transformed to inhomogeneous coordinates for each point
-// gives the following equations for each point:
-//
-// x' * (h31*x + h32*y + h33) = h11*x + h12*y + h13
-// y' * (h31*x + h32*y + h33) = h21*x + h22*y + h23
-//
-// as the homography is scale independent we can let h33 be 1 (indeed any of the terms)
-// so for 4 points we have 8 equations for 8 terms to solve: h11 - h32
-// after ordering the terms it gives the following matrix
-// that can be solved with gaussian elimination: http://en.wikipedia.org/wiki/Gaussian_elimination
-//
-// gaussian elimination gives the results of the equation system
-// in the last column of the original matrix
-// opengl needs the transposed 4x4 matrix
-
-function gaussianElimination(A){
-  const n = 9
-  let i = 0;
-  let j = 0;
-  let m = n-1;
-
-  while (i < m && j < n) {
-    // Find pivot in column j, starting in row i
-    let maxi = i
-    for(let k = i + 1; k < m; k++) {
-      if (Math.abs(A[k * n + j]) > Math.abs(A[maxi * n + j])) {
-        maxi = k
+function adj(m) { // Compute the adjugate of m
+  return [
+    m[4]*m[8]-m[5]*m[7], m[2]*m[7]-m[1]*m[8], m[1]*m[5]-m[2]*m[4],
+    m[5]*m[6]-m[3]*m[8], m[0]*m[8]-m[2]*m[6], m[2]*m[3]-m[0]*m[5],
+    m[3]*m[7]-m[4]*m[6], m[1]*m[6]-m[0]*m[7], m[0]*m[4]-m[1]*m[3]
+  ];
+}
+function multmm(a, b) { // multiply two matrices
+  var c = Array(9);
+  for (var i = 0; i != 3; ++i) {
+    for (var j = 0; j != 3; ++j) {
+      var cij = 0;
+      for (var k = 0; k != 3; ++k) {
+        cij += a[3*i + k]*b[3*k + j];
       }
-    }
-
-    if (A[maxi*n+j] !== 0) {
-      //swap rows i and maxi, but do not change the value of i
-      if (i !== maxi) {
-        for (let k = 0; k < n; k++) {
-          let tmp = A[i * n + k]
-          A[i * n + k] = A[maxi * n + k]
-          A[maxi * n + k] = tmp
-        }
-      }
-
-      //Now A[i,j] will contain the old value of A[maxi,j]
-      //divide each entry in row i by A[i,j]
-      let A_ij = A[i * n + j]
-      for (let k = 0; k < n; k++) {
-         A[i * n + k] /= A_ij;
-      }
-
-      //Now A[i,j] will have the value 1
-      for (let u = i + 1; u < m; u++) {
-        //subtract A[u,j] * row i from row u
-        let A_uj = A[u * n + j];
-        for(let k = 0; k < n; k++) {
-          A[u * n + k] -= A_uj * A[i * n + k]
-        }
-        //Now A[u,j] will be 0, since A[u,j] - A[i,j] * A[u,j] = A[u,j] - 1 * A[u,j] = 0
-      }
-
-      i++
-    }
-
-    j++
-  }
-
-  //back substitution
-  for (let i = m - 2; i >= 0; i--) {
-    for (let j = i + 1; j < n - 1; j++) {
-      A[i * n + m] -= A[i * n + j] * A[j * n + m]
-      //A[i*n+j]=0;
+      c[3*i + j] = cij;
     }
   }
+  return c;
+}
+function multmv(m, v) { // multiply matrix and vector
+  return [
+    m[0]*v[0] + m[1]*v[1] + m[2]*v[2],
+    m[3]*v[0] + m[4]*v[1] + m[5]*v[2],
+    m[6]*v[0] + m[7]*v[1] + m[8]*v[2]
+  ];
+}
+function pdbg(m, v) {
+  var r = multmv(m, v);
+  return r + " (" + r[0]/r[2] + ", " + r[1]/r[2] + ")";
+}
+function basisToPoints(x1, y1, x2, y2, x3, y3, x4, y4) {
+  var m = [
+    x1, x2, x3,
+    y1, y2, y3,
+     1,  1,  1
+  ];
+  var v = multmv(adj(m), [x4, y4, 1]);
+  return multmm(m, [
+    v[0], 0, 0,
+    0, v[1], 0,
+    0, 0, v[2]
+  ]);
+}
+function general2DProjection(
+  x1s, y1s, x1d, y1d,
+  x2s, y2s, x2d, y2d,
+  x3s, y3s, x3d, y3d,
+  x4s, y4s, x4d, y4d
+) {
+  var s = basisToPoints(x1s, y1s, x2s, y2s, x3s, y3s, x4s, y4s);
+  var d = basisToPoints(x1d, y1d, x2d, y2d, x3d, y3d, x4d, y4d);
+  return multmm(d, adj(s));
+}
+function project(m, x, y) {
+  var v = multmv(m, [x, y, 1]);
+  return [v[0]/v[2], v[1]/v[2]];
 }
 
-export function FindHomography(src, dst) {
-  const P = [
-    -src[0*2+0], -src[0*2+1], -1,      0,           0,       0, src[0*2+0] * dst[0*2+0], src[0*2+1] * dst[0*2+0], -dst[0*2+0], // h11
-         0     ,      0     ,  0, -src[0*2+0], -src[0*2+1], -1, src[0*2+0] * dst[0*2+1], src[0*2+1] * dst[0*2+1], -dst[0*2+1], // h12
-
-    -src[1*2+0], -src[1*2+1], -1,      0,           0,       0, src[1*2+0] * dst[1*2+0], src[1*2+1] * dst[1*2+0], -dst[1*2+0], // h13
-         0,          0,        0, -src[1*2+0], -src[1*2+1], -1, src[1*2+0] * dst[1*2+1], src[1*2+1] * dst[1*2+1], -dst[1*2+1], // h21
-
-    -src[2*2+0], -src[2*2+1], -1,      0,           0,       0, src[2*2+0] * dst[2*2+0], src[2*2+1] * dst[2*2+0], -dst[2*2+0], // h22
-         0,           0,       0, -src[2*2+0], -src[2*2+1], -1, src[2*2+0] * dst[2*2+1], src[2*2+1] * dst[2*2+1], -dst[2*2+1], // h23
-
-    -src[3*2+0], -src[3*2+1], -1,      0,           0,       0, src[3*2+0] * dst[3*2+0], src[3*2+1] * dst[3*2+0], -dst[3*2+0], // h31
-         0,           0,       0, -src[3*2+0], -src[3*2+1], -1, src[3*2+0] * dst[3*2+1], src[3*2+1] * dst[3*2+1], -dst[3*2+1], // h32
-  ]
-
-  gaussianElimination(P, 9)
-
-  return new Float64Array([
-    P[0*9+8], P[3*9+8], 0, P[6*9+8], // h11  h21 0 h31
-    P[1*9+8], P[4*9+8], 0, P[7*9+8], // h12  h22 0 h32
-        0   ,     0   , 1,     0   , //  0    0  0  0
-    P[2*9+8], P[5*9+8], 0,     1   , // h13  h23 0 h33
-  ])
+export function FindHomography(w, h, x1, y1, x2, y2, x3, y3, x4, y4) {
+  var t = general2DProjection
+    (0, 0, x1, y1, w, 0, x2, y2, 0, h, x4, y4, w, h, x3, y3);
+  for(let i = 0; i != 9; ++i) t[i] = t[i]/t[8];
+  return [t[0], t[3], 0, t[6],
+       t[1], t[4], 0, t[7],
+       0   , 0   , 1, 0   ,
+       t[2], t[5], 0, t[8]];
 }
+

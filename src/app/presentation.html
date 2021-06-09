@@ -14,20 +14,51 @@
   </style>
 </head>
 <body>
-  <ss-mapping></ss-mapping>
   <script type="module">
-    import { PlayerComponent } from "/components/index.mjs"
+    import { PlayerComponent, MappingComponent } from "/components/index.mjs"
     import { Presentation } from "/components/player/presentation.mjs"
+
+    const path = String(window.location.hash).replace(/^#*/,"")
+
+    async function getData(url) {
+      const response = await fetch(url)
+      if (response.status !== 200) throw new Error(`${response.status}: ${response.statusText}`)
+      return response
+    }
+
+    async function getSSMapping(url = `/content${path}.map.json`) {
+      try {
+        const data = await getData(url)
+        return data
+      } catch (error) {
+        throw new Error(`Incorrect SS mapping data by path "${window.location.origin}${url}"!`)
+        console.error(error)
+      }
+    }
+
+    async function parseData(response) {
+      if (!response) return undefined
+      try {
+        return await response.json()
+      } catch (error) {
+        throw new Error(`Incorrect JSON by path "${response.url}"!<br>${error.message}`)
+        console.error(error)
+      }
+      return undefined
+    }
 
     const mappingNode = document.querySelector("ss-mapping")
 
     try {
+      const mappingData = await parseData(await getSSMapping())
+      const mappingNode = new MappingComponent(mappingData)
       const presentation = await new Presentation({ master: false })
       const playerNode = new PlayerComponent()
       mappingNode.appendChild(playerNode)
       presentation.addEventListener("play", ({detail}) => detail ? playerNode.play(detail) : playerNode.dummy())
+      document.body.appendChild(mappingNode)
     } catch (error) {
-      document.body.innerHTML = `<h1 class="error">Presentation mode error</h1>`
+      document.body.innerHTML = `<h1 class="error">Presentation mode error: ${error}</h1>`
       console.error(error)
     }   
   </script>

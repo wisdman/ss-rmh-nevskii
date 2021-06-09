@@ -10,36 +10,24 @@ export class MappingComponent extends AbstractComponent {
   static STYLES = STYLE
   static TEMPLATE = TEMPLATE
 
-  get #size() {
-    const { width, height } = this.getBoundingClientRect()
-    const ratio = width/height
-    return { width, height, ratio }
+  #surfaceNode = this.$(".surface")
+  #corners = []
+
+  constructor(corners = [0,0,1920,0,1920,1080,0,1080]) {
+    super()
+    this.#corners = corners
   }
 
-  #srcCords = []
-  #defaultCorners = []
-
-  map(corners = this.#defaultCorners) {
-    console.log(corners)
-    const matrix = FindHomography(this.#srcCords, corners)
+  map([x1 = 0, y1 = 0, x2 = 0, y2 = 0, x3 = 0, y3 = 0, x4 = 0, y4 = 0] = this.#corners) {
+    const matrix = FindHomography(
+      this.offsetWidth, this.offsetHeight,
+      x1, y1, x2, y2, x3, y3, x4, y4
+    )
     this.style.transform = `matrix3d(${matrix.join(",")})`
+    console.log(JSON.stringify(this.#corners))
   }
 
   connectedCallback() {
-    const { width, height } = this.#size
-    
-    this.#srcCords = [
-        0   ,    0   , // [0] left-top
-      width ,    0   , // [1] right-top
-      width , height , // [2] right-bottom
-        0   , height , // [3] left- bottom
-    ]
-
-    this.#defaultCorners = [
-        0   ,    0   , // [0] left-top
-      width ,    0   , // [1] right-top
-      width , height , // [2] right-bottom
-        0   , height , // [3] left- bottom
-    ]
+    this.map()
   }
 }

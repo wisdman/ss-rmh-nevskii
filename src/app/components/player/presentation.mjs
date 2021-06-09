@@ -1,5 +1,5 @@
 
-const PRESENTATION_URL = `${window.location.origin}/presentation.html`
+const PRESENTATION_URL = `${window.location.origin}/presentation.html#${window.location.pathname}`
 
 
 export class Presentation extends EventTarget {
