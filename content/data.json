@@ -60,7 +60,7 @@
     "video":"17.FullHD"
 },
     "19":{
-    "pic":"8.0.color",
+    "pic":"8.0",
     "video":"19.FullHD"
 },
     "20":{
@@ -126,6 +126,14 @@
     "47":{
     "pic":"29.0.color",
     "video":"47.FullHD"
+},
+    "48":{
+    "pic":"31.0.color",
+    "video":"48.FullHD"
+},
+    "50":{
+    "pic":"35.1 слои",
+    "video":"50.notext.FullHD."
 },
     "57":{
     "pic":"56",
