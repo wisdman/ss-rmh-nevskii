@@ -27,6 +27,8 @@ export class PlayerComponent extends AbstractComponent {
     this.#video.remove()
     this.#video.src = url
     this.root.appendChild(this.#video)
+    this.#video.loop = true
+    this.#video.muted = true
     this.#video.play()
   }
 
