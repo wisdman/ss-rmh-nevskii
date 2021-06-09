@@ -60,12 +60,17 @@
     const ssData = await parseData(await getSSData())
     if (contentData && ssData) {
       ssData.slides = ssData.slides.map(id => {
-        const {pic, video} = contentData[id]
-        return {
-          image: `/content/assets/${pic}.webp`,
-          presentation: `/content/assets/${video}.mp4`,
+        try {
+          const {pic, video} = contentData[id]
+          return {
+            image: `/content/assets/${pic}.webp`,
+            presentation: `/content/assets/${video}.mp4`,
+          }
+        } catch (error) {
+          console.error(`Error by [${id}]: ${error}`)
+          return undefined
         }
-      })
+      }).filter(data => !!data)
 
       const sliderNode = new SliderComponent(ssData, await new Presentation({ master: true }))
       requestAnimationFrame(() => {

@@ -14,14 +14,17 @@
   </style>
 </head>
 <body>
+  <ss-mapping></ss-mapping>
   <script type="module">
     import { PlayerComponent } from "/components/index.mjs"
     import { Presentation } from "/components/player/presentation.mjs"
 
+    const mappingNode = document.querySelector("ss-mapping")
+
     try {
       const presentation = await new Presentation({ master: false })
       const playerNode = new PlayerComponent()
-      document.body.appendChild(playerNode)
+      mappingNode.appendChild(playerNode)
       presentation.addEventListener("play", ({detail}) => detail ? playerNode.play(detail) : playerNode.dummy())
     } catch (error) {
       document.body.innerHTML = `<h1 class="error">Presentation mode error</h1>`
