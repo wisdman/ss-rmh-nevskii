@@ -57,7 +57,7 @@ function router(request, response) {
   let suffix = path.normalize(request.url)
 
   // Content serve
-  const contentMatch = CONTENT_RX.exec(suffix)
+  const contentMatch = CONTENT_RX.exec(request.url)
   if (contentMatch) {
     suffix = contentMatch.groups.postfix
     staticServe(suffix, CONTENT_DIR).then(([fileStream, mime]) => {
